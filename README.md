@@ -11,10 +11,8 @@ plugin.json                 the package manifest (Agent Plugins 1.0.0)
 skills/<name>/SKILL.md      one Agent Skill per directory
 ```
 
-- `workspace` — working with files and running shell commands inside the
-  agent's own sandbox.
 - `trading` — trading the agent's own brokerage account within the
-  brokerage's rules.
+  brokerage's rules, and how the agent's sandbox works.
 
 ## How the platform uses it
 
@@ -28,18 +26,20 @@ plugins:
         url: https://github.com/Spooky-Labs/skills
         commit: <full commit id>
     skills:
-      - workspace
+      - trading
 ```
 
-Every source is immutable: the platform pins the **full commit id** of
-`main` that its catalog last read, and the agent's sandbox fetches that
-commit when the agent starts. Publishing a change is therefore two steps
-that happen on their own:
+Every source is immutable: the platform pins one **full commit id** of
+this repository, bakes that commit into the agent runtime image, and its
+catalog reads the same commit, so an agent's template declares exactly the
+package its sandbox already holds and nothing is fetched when the agent
+starts. Publishing a change is therefore two steps:
 
 1. A pull request merges here.
-2. The platform's catalog re-reads `main` within ten minutes. Agents created
-   after that carry the new commit; agents already running keep the content
-   they started with, until they are re-saved.
+2. The platform pins the new commit (`platform-api/runtime/kagent/skills.env`),
+   which rebuilds the runtime image and rolls it out. Agents created after
+   that carry the new commit; agents already running keep the content they
+   started with.
 
 The skill directories are what `plugins[].skills` selects by name, and the
 `name` in each `SKILL.md` front matter must equal its directory name
@@ -51,7 +51,8 @@ mistake never becomes a skill the runtime silently skips.
 
 A skill is a directory under `skills/` holding a `SKILL.md` with YAML
 front matter (`name`, `description`) and the instructions the agent follows
-once it has chosen the skill by that description. Scripts and reference
-files go beside it; the agent's sandbox is Alpine Linux with `bash` and
-`git`, without Python, and it reaches only the hosts the platform allows, so
-a skill must not depend on fetching the internet.
+once it has chosen the skill by that description. Reference files go
+beside it. The agent has file tools only: it reads, writes and edits files
+in its session directory and reads a skill's files, and it has no shell, so
+a skill must not ship scripts or depend on running commands or fetching the
+internet.
