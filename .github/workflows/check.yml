@@ -1,0 +1,18 @@
+# The package is validated the way its two consumers read it: the platform's
+# catalog (name and description from each SKILL.md front matter, the manifest
+# by its literal $schema) and kagent's runtime (plugin.json at the root,
+# skills/<name>/SKILL.md by directory name). A rule broken here would not
+# fail loudly there -- the runtime skips an invalid skill and keeps going --
+# so this is where it fails.
+name: check
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate the package
+        run: python3 scripts/check.py

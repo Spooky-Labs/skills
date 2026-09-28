@@ -1,0 +1,8 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "spooky-labs",
+  "version": "1.0.0",
+  "description": "The skills a Spooky Labs agent picks up: working in its own sandbox, and trading its own brokerage account.",
+  "homepage": "https://spookylabs.ai",
+  "repository": "https://github.com/Spooky-Labs/skills"
+}
