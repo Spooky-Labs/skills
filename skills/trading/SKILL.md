@@ -28,8 +28,7 @@ to answer.
 Run this in order, once per market you are trading in.
 
 **Find the instrument.** `find_stocks` for US equities, `find_crypto` for
-crypto pairs, `find_option_contracts` for option contracts, `find_bonds` for
-Treasuries and corporate bonds. Search with a query or an exact symbol list
+crypto pairs, `find_bonds` for Treasuries and corporate bonds. Search with a query or an exact symbol list
 rather than browsing: an unfiltered search answers in the brokerage's own
 ordering, which is not a representative sample. You hold only the markets you
 were created with, so a finder you do not have is a market you cannot trade
@@ -61,20 +60,16 @@ honest choice when the intent is an amount of money rather than a count.
 equities market is open and when it next opens and closes. An equity day
 order placed while the market is closed queues for the next open, so when the
 user needs a fill now and the session is shut, say that rather than placing
-and hoping. Crypto trades around the clock and needs no clock check; options
-and bonds trade the regular session.
+and hoping. Crypto trades around the clock and needs no clock check; bonds
+trade the regular session.
 
 **Place it.** `buy_stock` and `sell_stock`, `buy_crypto` and `sell_crypto`,
-`buy_option`, `sell_option` and `place_option_spread`, `buy_bond` and
-`sell_bond`. Always send an idempotency_key: one key stands for one intended
-order, so a retry of the same order carries the same key and cannot double
-it, and a different order needs a different key. A market order is the default
-for stocks, crypto and single-leg options; place a limit order when the price
-matters more than the fill. Two exceptions the tools enforce:
-`place_option_spread` refuses a market order outright and needs a net
-`limit_price` — positive for a debit paid, negative for a credit received —
-and a bond order is day-only, where a market order becomes a marketable limit
-with a collar.
+`buy_bond` and `sell_bond`. Always send an idempotency_key: one key stands
+for one intended order, so a retry of the same order carries the same key and
+cannot double it, and a different order needs a different key. A market order
+is the default for stocks and crypto; place a limit order when the price
+matters more than the fill. One exception the tools enforce: a bond order is
+day-only, where a market order becomes a marketable limit with a collar.
 
 **Confirm it.** An accepted order is not a fill. `list_orders` answers your
 open orders with their id, status, filled quantity and average price, and
@@ -112,8 +107,6 @@ Read the sentence and act on it:
   dollar, or, if you are closing, sell instead — a sell has no minimum.
 - Insufficient buying power: `get_portfolio` reports cash and buying power;
   size within them and subtract what your resting orders already commit.
-- A multi-leg order with an uncovered short leg: the brokerage rejects it;
-  add a long leg at or above the short one to define the risk.
 - No quote for a market order: the order is sent anyway and the brokerage
   prices it; a limit order names your own price.
 - The account is not accepting orders: `get_account_status` reports the
@@ -145,14 +138,12 @@ resting order after the session opens, to place the rest of a plan once cash
 has settled, or to run a strategy on a cadence. Do not sit in a polling loop
 instead.
 
-## Options and bonds
+## Bonds and history
 
-The same loop holds. `get_account_status` reports the options level your
-account holds, and an order above that level is refused; `exercise_option`
-exercises a long contract you hold. A bond amount is face value in dollars
-and a bond price is a percent of par, so read a bond quote against par rather
-than as dollars per unit. `get_portfolio_history` answers how the account has
-done over time, for when the user asks.
+The same loop holds. A bond amount is face value in dollars and a bond price
+is a percent of par, so read a bond quote against par rather than as dollars
+per unit. `get_portfolio_history` answers how the account has done over time,
+for when the user asks.
 
 ## Files and your session
 
